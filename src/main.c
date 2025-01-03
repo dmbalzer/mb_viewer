@@ -1,7 +1,11 @@
 #define RAYGUI_IMPLEMENTATION
+#define DEVICE_IMPLEMENTATION
 #include <raygui.h>
+#include "device.h"
 
 static bool quit = false;
+#define MAX_DEVICES 64
+static Device devices[MAX_DEVICES] = { 0 };
 
 static void draw_main_menu(void)
 {
@@ -49,12 +53,16 @@ int main(void)
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetExitKey(KEY_NULL);
 	
+	devices[0] = new_device("Downstairs AHU", "192.168.0.12", 1502, 1, (Vector2){ 64, 64 });
+
 	while ( !quit )
 	{
 		if ( WindowShouldClose() ) quit = true;
 		BeginDrawing();
 		ClearBackground(DARKBLUE);
 		
+		draw_device(&devices[0]);
+
 		draw_main_menu();
 		
 		EndDrawing();
