@@ -19,7 +19,7 @@ Device new_device(
 		int port,
 		int addr,
 		Vector2 pos);
-
+void device_window(Device* d);
 void draw_device(Device* d);
 
 #endif // DEVICE_INCLUDED
@@ -45,6 +45,19 @@ Device new_device(
 	d.addr = addr;
 	d.pos = pos;
 	return d;
+}
+
+int draw_device_window(Device* d)
+{
+	/* TODO */
+	GuiEnable();
+	int result = 0;
+	Rectangle bounds = (Rectangle){ 0, 0, 120, 120 };
+	bounds.x = GetScreenWidth()/2 - bounds.width/2;
+	bounds.y = GetScreenHeight()/2 - bounds.height/2;
+	if ( GuiWindowBox(bounds, "New Device") ) result = 1;
+	if ( !result ) GuiDisable();
+	return result;
 }
 
 void draw_device(Device* d)
