@@ -26,8 +26,8 @@ void new_obj(ObjType type)
 	}
 	obj->id = id++;
 	switch ( type ) {
-		case STATIC_OBJ: obj->typed_obj = _new_static_obj();
-		case BOOL_OBJ:   obj->typed_obj = _new_bool_obj();
+		case STATIC_OBJ: obj->typed_obj = _new_static_obj(); break;
+		case BOOL_OBJ:   obj->typed_obj = _new_bool_obj(); break;
 	}
 	tail->next = obj;
 	tail = obj;
