@@ -3,18 +3,49 @@
 
 bool quit = false;
 
-Image img = { 0 };
-char name[256] = { 0 };
-Texture tex = { 0 };
+typedef struct _img_node ImgNode;
+struct _img_node {
+	char name[256];
+	Image img;
+	Texture tex;
+	ImgNode* next;
+};
 
-static void load_dropped_img(const char* fn)
+ImgNode head = { 0 };
+ImgNode* tail = &head;
+
+static void load_img(const char* fn)
 {
 	if ( IsFileExtension(fn, ".png") ) {
-		UnloadImage(img);
-		UnloadTexture(tex);
-		TextCopy(name, fn);
-		img = LoadImage(fn);
-		tex = LoadTextureFromImage(img);
+		ImgNode* in = MemAlloc(sizeof(ImgNode));
+		if ( in == 0 ) {
+			TraceLog(LOG_ERROR, "Error allocating memory for img.");
+			return;
+		}
+		TextCopy(in->name, GetFileName(fn));
+		in->img = LoadImage(fn);
+		in->tex = LoadTextureFromImage(in->img);
+		tail->next = in;
+		tail = in;
+	}
+}
+
+static void unload_imgs(void)
+{
+	for ( ImgNode* in = head.next; in != 0; in = in->next ) {
+		UnloadTexture(in->tex);
+		UnloadImage(in->img);
+		MemFree(in);
+	}
+}
+
+static void list_imgs(void)
+{
+	int x = 24;
+	int y = 24;
+	for ( ImgNode* in = head.next; in != 0; in = in->next ) {
+		DrawText(in->name, x, y, 24, DARKGRAY);
+		y += 24;
 	}
 }
 
@@ -27,18 +58,17 @@ int main(void)
 		
 		if ( IsFileDropped() ) {
 			FilePathList fpl = LoadDroppedFiles();
-			for ( int i = 0; i < fpl.count; i++ ) load_dropped_img(fpl.paths[i]);
+			for ( int i = 0; i < fpl.count; i++ ) load_img(fpl.paths[i]);
 			UnloadDroppedFiles(fpl);
 		}
 		
 		BeginDrawing();
 		ClearBackground(WHITE);
-		DrawTexture(tex, 24, 24, WHITE);
+		list_imgs();
 		EndDrawing();
 	}
 	
-	UnloadImage(img);
-	UnloadTexture(tex);
+	unload_imgs();	
 	CloseWindow();
 	return 0;
 }
