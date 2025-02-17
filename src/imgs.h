@@ -1,6 +1,8 @@
 #ifndef IMGS_INCLUDED
 #define IMGS_INCLUDED
 
+#include <raylib.h>
+
 typedef struct _img_node ImgNode;
 struct _img_node {
 	char name[256];
