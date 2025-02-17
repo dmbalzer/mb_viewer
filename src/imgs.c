@@ -11,7 +11,7 @@ void load_img(const char* fn)
 {
 	if ( IsFileExtension(fn, ".png") ) {
 		ImgNode* img = MemAlloc(sizeof(ImgNode));
-		if ( img == 0 ) {
+		if ( img == NULL ) {
 			TraceLog(LOG_ERROR, "Error allocatimgg memory for img.");
 			return;
 		}

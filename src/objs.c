@@ -7,12 +7,12 @@ static int id = 0;
 static Obj head = { 0 };
 static Obj* tail = &head;
 
-static void* _new_static_obj(int img_id)
+static void* _new_static_obj(void)
 {
 	return NULL;
 }
 
-static void* _new_bool_obj(int true_img_id, int false_img_id)
+static void* _new_bool_obj(void)
 {
 	return NULL;
 }
@@ -20,11 +20,15 @@ static void* _new_bool_obj(int true_img_id, int false_img_id)
 void new_obj(ObjType type)
 {
 	Obj* obj = MemAlloc(sizeof(Obj));
-	if ( obj == 0 ) {
+	if ( obj == NULL ) {
 		TraceLog(LOG_ERROR, "Error allocating memory for object.");
 		return;
 	}
 	obj->id = id++;
+	switch ( type ) {
+		case STATIC_OBJ: obj->typed_obj = _new_static_obj();
+		case BOOL_OBJ:   obj->typed_obj = _new_bool_obj();
+	}
 	tail->next = obj;
 	tail = obj;
 }
