@@ -1,6 +1,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 #include "imgs.h"
+#include "objs.h"
 
 bool quit = false;
 bool show_img_list = true;

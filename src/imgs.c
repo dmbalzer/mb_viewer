@@ -3,6 +3,7 @@
 #include <raygui.h>
 #include <stdlib.h>
 
+static int id = 0;
 static ImgNode head = { 0 };
 static ImgNode* tail = &head;
 
@@ -14,9 +15,10 @@ void load_img(const char* fn)
 			TraceLog(LOG_ERROR, "Error allocating memory for img.");
 			return;
 		}
+		in->id = ++id;
 		TextCopy(in->name, GetFileName(fn));
 		in->img = LoadImage(fn);
-		in->tex = LoadTextureFromImage(in->img);
+		in->texture = LoadTextureFromImage(in->img);
 		tail->next = in;
 		tail = in;
 	}
@@ -25,7 +27,7 @@ void load_img(const char* fn)
 void unload_imgs(void)
 {
 	for ( ImgNode* in = head.next; in != 0; in = in->next ) {
-		UnloadTexture(in->tex);
+		UnloadTexture(in->texture);
 		UnloadImage(in->img);
 		MemFree(in);
 	}

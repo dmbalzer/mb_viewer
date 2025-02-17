@@ -5,9 +5,10 @@
 
 typedef struct _img_node ImgNode;
 struct _img_node {
+	int id;
 	char name[256];
 	Image img;
-	Texture tex;
+	Texture texture;
 	ImgNode* next;
 };
 
