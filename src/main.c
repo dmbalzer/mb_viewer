@@ -41,11 +41,21 @@ static void unload_imgs(void)
 
 static void list_imgs(void)
 {
-	int x = 24;
-	int y = 24;
+	int count = 0;
+	for ( ImgNode* in = head.next; in != 0; in = in->next ) { count++; }
+	int x = 0;
+	int y = 0;
+	int w = 120;
+	int h = 24 * (count + 1);
+	Rectangle bounds = (Rectangle){ x,y,w,h };
+	GuiPanel(bounds, "Images");
+	bounds.x += 8;
+	bounds.width -= 16;
+	bounds.y += 24;
+	bounds.height = 24;
 	for ( ImgNode* in = head.next; in != 0; in = in->next ) {
-		DrawText(in->name, x, y, 24, DARKGRAY);
-		y += 24;
+		GuiLabel(bounds, in->name);
+		bounds.y += 24;
 	}
 }
 
