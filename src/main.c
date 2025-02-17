@@ -22,7 +22,6 @@ int main(void)
 {
 	InitWindow(960, 640, "Modbus Viewer");
 	SetTargetFPS(30);
-
 	while ( !quit ) {
 		if ( WindowShouldClose() ) quit = true;
 		
@@ -37,7 +36,7 @@ int main(void)
 		DrawTexture(tex, 24, 24, WHITE);
 		EndDrawing();
 	}
-
+	
 	UnloadImage(img);
 	UnloadTexture(tex);
 	CloseWindow();
