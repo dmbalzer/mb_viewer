@@ -10,26 +10,28 @@ static ImgNode* tail = &head;
 void load_img(const char* fn)
 {
 	if ( IsFileExtension(fn, ".png") ) {
-		ImgNode* in = MemAlloc(sizeof(ImgNode));
-		if ( in == 0 ) {
-			TraceLog(LOG_ERROR, "Error allocating memory for img.");
+		ImgNode* img = MemAlloc(sizeof(ImgNode));
+		if ( img == 0 ) {
+			TraceLog(LOG_ERROR, "Error allocatimgg memory for img.");
 			return;
 		}
-		in->id = id++;
-		TextCopy(in->name, GetFileName(fn));
-		in->img = LoadImage(fn);
-		in->texture = LoadTextureFromImage(in->img);
-		tail->next = in;
-		tail = in;
+		img->id = id++;
+		TextCopy(img->name, GetFileName(fn));
+		img->img = LoadImage(fn);
+		img->texture = LoadTextureFromImage(img->img);
+		tail->next = img;
+		tail = img;
 	}
 }
 
 void unload_imgs(void)
 {
-	for ( ImgNode* in = head.next; in != 0; in = in->next ) {
-		UnloadTexture(in->texture);
-		UnloadImage(in->img);
-		MemFree(in);
+	for ( ImgNode* img = head.next; img != 0; img = img->next ) {
+		UnloadTexture(img->texture);
+		UnloadImage(img->img);
+		int _id = img->id;
+		MemFree(img);
+		TraceLog(LOG_INFO, TextFormat("img [ID %d] unloaded.", _id));
 	}
 }
 
@@ -38,8 +40,8 @@ int draw_img_list(int x, int y)
 	int result = 0;
 	char buff[1024] = { 0 };
 	int cursor = 0;
-	for ( ImgNode* in = head.next; in != 0; in = in->next ) {
-		TextAppend(buff, in->name, &cursor);
+	for ( ImgNode* img = head.next; img != 0; img = img->next ) {
+		TextAppend(buff, img->name, &cursor);
 		TextAppend(buff, ";", &cursor);
 	}
 	buff[cursor - 1] = '\0';

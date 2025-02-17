@@ -4,7 +4,8 @@
 #include "objs.h"
 
 bool quit = false;
-bool show_img_list = true;
+bool show_img_list = false;
+bool show_new_obj = true;
 
 int main(void)
 {
@@ -21,10 +22,12 @@ int main(void)
 		
 		BeginDrawing();
 		ClearBackground(WHITE);
+		if ( show_new_obj ) show_new_obj = !draw_new_obj();
 		if ( show_img_list ) show_img_list = !draw_img_list( 24, 24);
 		EndDrawing();
 	}
 	
+	unload_objs();	
 	unload_imgs();	
 	CloseWindow();
 	return 0;

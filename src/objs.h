@@ -25,15 +25,15 @@ struct _bool_obj {
 
 typedef struct _obj Obj;
 struct _obj {
+	int id;
 	Vector2 pos;
 	ObjType type;
 	void* typed_obj;
 	Obj* next;
 };
 
-void* new_static_obj(int img_id);
-void* new_bool_obj(int true_img_id, int false_img_id);
-void new_obj(ObjType type, void* typed_obj);
+int draw_new_obj(void);
+void new_obj(ObjType type);
 void unload_objs(void);
 void draw_objs(void);
 
