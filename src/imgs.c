@@ -15,7 +15,7 @@ void load_img(const char* fn)
 			TraceLog(LOG_ERROR, "Error allocating memory for img.");
 			return;
 		}
-		in->id = ++id;
+		in->id = id++;
 		TextCopy(in->name, GetFileName(fn));
 		in->img = LoadImage(fn);
 		in->texture = LoadTextureFromImage(in->img);
