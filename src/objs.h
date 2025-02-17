@@ -16,6 +16,7 @@ struct _static_obj {
 
 typedef struct _bool_obj BoolObj;
 struct _bool_obj {
+	bool value;
 	int true_img_id;
 	int false_img_id;
 	Texture* true_texture;
