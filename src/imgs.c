@@ -1,6 +1,7 @@
 #include "imgs.h"
 #undef RAYGUI_IMPLEMENTATION
 #include <raygui.h>
+#include <stdlib.h>
 
 static ImgNode head = { 0 };
 static ImgNode* tail = &head;
@@ -30,21 +31,23 @@ void unload_imgs(void)
 	}
 }
 
-void draw_img_list(int x, int y)
+int draw_img_list(int x, int y)
 {
-	int count = 0;
-	for ( ImgNode* in = head.next; in != 0; in = in->next ) { count++; }
-	int w = 120;
-	int h = 24 * (count + 1);
-	Rectangle bounds = (Rectangle){ x, y, w, h };
-	GuiPanel(bounds, "Images");
-	bounds.x += 8;
-	bounds.width -= 16;
-	bounds.y += 24;
-	bounds.height = 24;
+	int result = 0;
+	char buff[1024] = { 0 };
+	int cursor = 0;
 	for ( ImgNode* in = head.next; in != 0; in = in->next ) {
-		GuiLabel(bounds, in->name);
-		bounds.y += 24;
+		TextAppend(buff, in->name, &cursor);
+		TextAppend(buff, ";", &cursor);
 	}
+	buff[cursor - 1] = '\0';
+	Rectangle bounds = (Rectangle){ x, y, 120, 200 };
+	result = GuiWindowBox(bounds, "Images");
+	bounds.y += 24;
+	bounds.height -= 24;
+	static int scroll_idx = 0;
+	static int active = 0;
+	GuiListView(bounds, buff, &scroll_idx, &active);
+	return result;
 }
 

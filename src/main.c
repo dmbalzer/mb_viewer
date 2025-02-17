@@ -3,6 +3,7 @@
 #include "imgs.h"
 
 bool quit = false;
+bool show_img_list = true;
 
 int main(void)
 {
@@ -19,7 +20,7 @@ int main(void)
 		
 		BeginDrawing();
 		ClearBackground(WHITE);
-		draw_img_list( 24, 24);
+		if ( show_img_list ) show_img_list = !draw_img_list( 24, 24);
 		EndDrawing();
 	}
 	
