@@ -22,6 +22,7 @@ int main(void)
 		
 		BeginDrawing();
 		ClearBackground(WHITE);
+		draw_objs();
 		if ( show_new_obj ) show_new_obj = !draw_new_obj();
 		if ( show_img_list ) show_img_list = !draw_img_list( 24, 24);
 		EndDrawing();

@@ -27,6 +27,8 @@ typedef struct _obj Obj;
 struct _obj {
 	int id;
 	Vector2 pos;
+	int w;
+	int h;
 	ObjType type;
 	void* typed_obj;
 	Obj* next;

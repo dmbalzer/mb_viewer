@@ -9,12 +9,22 @@ static Obj* tail = &head;
 
 static void* _new_static_obj(void)
 {
-	return NULL;
+	void* obj = (void*)MemAlloc(sizeof(StaticObj));
+	if ( obj == NULL ) {
+		TraceLog(LOG_ERROR, "Error allocating memory for static object.");
+		return NULL;
+	}
+	return obj;
 }
 
 static void* _new_bool_obj(void)
 {
-	return NULL;
+	void* obj = (void*)MemAlloc(sizeof(BoolObj));
+	if ( obj == NULL ) {
+		TraceLog(LOG_ERROR, "Error allocating memory for boolean object.");
+		return NULL;
+	}
+	return obj;
 }
 
 void new_obj(ObjType type)
@@ -25,12 +35,26 @@ void new_obj(ObjType type)
 		return;
 	}
 	obj->id = id++;
+	obj->pos = (Vector2){ 32, 32 };
+	obj->w = 64;
+	obj->h = 64;
+	obj->type = type;
 	switch ( type ) {
 		case STATIC_OBJ: obj->typed_obj = _new_static_obj(); break;
 		case BOOL_OBJ:   obj->typed_obj = _new_bool_obj(); break;
 	}
 	tail->next = obj;
 	tail = obj;
+}
+
+void unload_objs(void)
+{
+	for ( Obj* obj = head.next; obj != 0; obj = obj->next ) {
+		MemFree(obj->typed_obj);
+		int _id = obj->id;
+		MemFree(obj);
+		TraceLog(LOG_INFO, TextFormat("obj [ID %d] unloaded.", _id));
+	}
 }
 
 int draw_new_obj(void)
@@ -60,16 +84,16 @@ int draw_new_obj(void)
 	return result;
 }
 
-void unload_objs(void)
-{
-	for ( Obj* obj = head.next; obj != 0; obj = obj->next ) {
-		MemFree(obj->typed_obj);
-		int _id = obj->id;
-		MemFree(obj);
-		TraceLog(LOG_INFO, TextFormat("obj [ID %d] unloaded.", _id));
-	}
-}
-
 void draw_objs(void)
 {
+	for ( Obj* obj = head.next; obj != NULL; obj = obj->next ) {
+		switch ( obj->type ) {
+			case STATIC_OBJ:
+				GuiDummyRec((Rectangle){ obj->pos.x, obj->pos.y, obj->w, obj->h }, TextFormat("Static %d", obj->id));
+			break;
+			case BOOL_OBJ:
+				GuiDummyRec((Rectangle){ obj->pos.x, obj->pos.y, obj->w, obj->h }, TextFormat("Boolean %d", obj->id));
+			break;
+		}
+	}
 }
