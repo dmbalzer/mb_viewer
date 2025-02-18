@@ -14,7 +14,7 @@ struct _img_node {
 
 void load_img(const char* fn);
 void unload_imgs(void);
-int draw_img_list(int x, int y);
+int draw_img_list(void);
 
 #endif // IMGS_INCLUDED
 

@@ -35,7 +35,7 @@ void unload_imgs(void)
 	}
 }
 
-int draw_img_list(int x, int y)
+int draw_img_list(void)
 {
 	int result = 0;
 	char buff[1024] = { 0 };
@@ -45,7 +45,7 @@ int draw_img_list(int x, int y)
 		TextAppend(buff, ";", &cursor);
 	}
 	buff[cursor - 1] = '\0';
-	Rectangle bounds = (Rectangle){ x, y, 120, 200 };
+	Rectangle bounds = (Rectangle){ GetScreenWidth()/2 - 80, GetScreenHeight()/2 - 150, 160, 300 };
 	result = GuiWindowBox(bounds, "Images");
 	bounds.y += 24;
 	bounds.height -= 24;
