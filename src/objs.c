@@ -113,7 +113,7 @@ void draw_objects(void)
 		}
 		DrawRectangleLinesEx(
 			o->rect,
-			(float)GuiGetStyle(DEFAULT, BORDER_WIDTH),
+			GuiGetStyle(BUTTON, BORDER_WIDTH),
 			GetColor(GuiGetStyle(DEFAULT, o->selected ? BORDER_COLOR_FOCUSED : BORDER_COLOR_NORMAL)));
 	}
 }
