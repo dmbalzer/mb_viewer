@@ -5,6 +5,6 @@
 #define STD_H 20
 #define STD_W 80
 #define STD_WIN_W 300
-#define STD_WIN_H 400
+#define STD_WIN_H 300
 
 #endif // DEFS_INCLUDED
