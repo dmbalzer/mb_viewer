@@ -48,10 +48,12 @@ void process_dropped_imgs(const char* path)
 
 int draw_img_list_win(void)
 {
+	GuiEnable();
 	int result = 0;
 	int x = GetScreenWidth()/2 - STD_WIN_W/2;
 	int y = GetScreenHeight()/2 - STD_WIN_H/2;
 	Rectangle bounds = (Rectangle){ x, y, STD_WIN_W, STD_WIN_H };
 	if ( GuiWindowBox(bounds, "Image List") ) result = 1;
+	GuiDisable();
 	return result;
 }

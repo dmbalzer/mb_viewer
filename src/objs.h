@@ -28,6 +28,7 @@ struct _object {
 	 * pointer to the typed object the type determines
 	 * which update/draw/unload function gets called
 	 **************************************************/
+	bool selected;
 	void* obj; 
 	Object* next;
 };

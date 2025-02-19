@@ -40,9 +40,9 @@ int main(void)
 		ClearBackground(WHITE);
 		draw_objects();
 		switch ( state ) {
-			case NEW_OBJ:  { if ( draw_new_object_win() )  state = RUN; break; }
-			case EDIT_OBJ: { if ( draw_edit_object_win() ) state = RUN; break; }
-			case IMG_LIST: { if ( draw_img_list_win() )    state = RUN; break; }
+			case NEW_OBJ:  { if ( draw_new_object_win() )  state = RUN; GuiEnable(); break; }
+			case EDIT_OBJ: { if ( draw_edit_object_win() ) state = RUN; GuiEnable(); break; }
+			case IMG_LIST: { if ( draw_img_list_win() )    state = RUN; GuiEnable(); break; }
 			default: break;
 		}
 		draw_main_menu();
@@ -77,15 +77,15 @@ void draw_main_menu(void)
 	
 	/* New Object Button */
 	bounds_btn = (Rectangle){ PAD, PAD, STD_W, STD_H };
-	if ( GuiButton(bounds_btn, "New Object") ) state = NEW_OBJ;
+	if ( GuiButton(bounds_btn, "New Object") ) { state = NEW_OBJ; GuiDisable(); }
 	
 	/* Edit Object Button */
 	bounds_btn.x += bounds_btn.width + PAD;
-	if ( GuiButton(bounds_btn, "Edit Object") ) state = EDIT_OBJ;
+	if ( GuiButton(bounds_btn, "Edit Object") ) { state = EDIT_OBJ; GuiDisable(); }
 	
 	/* Image List Button */
 	bounds_btn.x += bounds_btn.width + PAD;
-	if ( GuiButton(bounds_btn, "Image List") ) state = IMG_LIST;
+	if ( GuiButton(bounds_btn, "Image List") ) { state = IMG_LIST; GuiDisable(); }
 	
 	/* Right Side Buttons */
 	/***************************************/
