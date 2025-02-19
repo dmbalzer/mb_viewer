@@ -22,7 +22,7 @@ typedef enum {
 typedef struct _object Object;
 struct _object {
 	int id;
-	Vector2 position;
+	Rectangle rect;
 	ObjType type;
 	/**************************************************
 	 * pointer to the typed object the type determines

@@ -9,6 +9,7 @@ static Object head = { 0 };
 static Object* tail = &head;
 
 static const char* type_names = "Static Image;Static Text;Bit Image;Bit Text;Register Image;Register Text";
+static const Rectangle default_obj_rect = (Rectangle){ 0, 0, 64, 64 };
 
 static void _new_object(ObjType type)
 {
@@ -16,6 +17,9 @@ static void _new_object(ObjType type)
 	if ( o == NULL ) { TraceLog(LOG_ERROR, "Error creating object."); return; }
 	o->id = id++;
 	o->type = type;
+	o->rect = default_obj_rect;
+	o->rect.x = GetScreenWidth()/2 - o->rect.width/2;
+	o->rect.y = GetScreenHeight()/2 - o->rect.height/2;
 	switch ( type ) {
 		case STATIC_IMG: break;
 		case STATIC_TXT: break;
@@ -45,17 +49,34 @@ void unload_objects(void)
 	}
 }
 
+static void _move_objects(void)
+{
+	static Object* move_obj = NULL;
+	if ( IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ) {
+		for ( Object* o = head.next; o != NULL; o = o->next ) {
+			if ( CheckCollisionPointRec(GetMousePosition(), o->rect) ) {
+				move_obj = o;
+			}
+		}
+	}
+	
+	if ( IsMouseButtonReleased(MOUSE_BUTTON_LEFT) ) move_obj = NULL;
+	
+	if ( move_obj != NULL ) {
+		move_obj->rect.x += GetMouseDelta().x;
+		move_obj->rect.y += GetMouseDelta().y;
+	}
+}
+
 void update_objects(void)
 {
-	for ( Object* o = head.next; o != NULL; o = o->next ) {
-		
-	}
+	_move_objects();
 }
 
 void draw_objects(void)
 {
 	for ( Object* o = head.next; o != NULL; o = o->next ) {
-		
+		if ( o->obj == NULL ) GuiDummyRec(o->rect, TextFormat("Object %d", o->id));
 	}
 }
 
