@@ -28,16 +28,21 @@ int main(void)
 		if ( IsFileDropped() ) process_file_drop();
 		
 		/* Update app */
+		update_imgs();
+		update_objects();
 		
 		/* Draw app */
 		BeginDrawing();
 		ClearBackground(WHITE);
-
+		
+		draw_objects();
 		draw_main_menu();
 		EndDrawing();
 	}
 	
 	/* Cleanup */
+	unload_objects();
+	unload_imgs();
 	CloseWindow();
 	return 0;
 }

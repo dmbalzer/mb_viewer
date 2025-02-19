@@ -3,6 +3,13 @@
 
 #include <raylib.h>
 
+/********************************************************
+ * Objects are anything that can be drawn in the window
+ * The private object list is ordered by draw order for
+ * display purposes and selection when interacting with
+ * the program.  Each type has its own object file for
+ * its creation, updating, drawing, and unloading.
+ ********************************************************/
 typedef enum {
 	STATIC_IMG,
 	STATIC_TXT,
@@ -10,15 +17,24 @@ typedef enum {
 	BIT_TXT,
 	REG_IMG,
 	REG_TXT,
-	MB_CTX,
 } ObjType;
 
 typedef struct _object Object;
 struct _object {
 	Vector2 position;
 	ObjType type;
-	void* obj;
+	/**************************************************
+	 * pointer to the typed object the type determines
+	 * which update/draw/unload function gets called
+	 **************************************************/
+	void* obj; 
 	Object* next;
 };
+
+void unload_objects(void);
+void update_objects(void);
+void draw_objects(void);
+/* New objects are created with the new object window */
+int draw_new_object_win(void);
 
 #endif // OBJS_INCLUDED
