@@ -21,6 +21,7 @@ typedef enum {
 
 typedef struct _object Object;
 struct _object {
+	int id;
 	Vector2 position;
 	ObjType type;
 	/**************************************************
@@ -37,5 +38,6 @@ void update_objects(void);
 void draw_objects(void);
 /* New objects are created with the new object window */
 int draw_new_object_win(void);
+int draw_edit_object_win(void);
 
 #endif // OBJS_INCLUDED

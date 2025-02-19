@@ -1,11 +1,15 @@
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
+#include "defs.h"
 #include "objs.h"
 #include "imgs.h"
 
 #define STATE_QTY 2
 typedef enum {
 	RUN,
+	NEW_OBJ,
+	EDIT_OBJ,
+	IMG_LIST,
 	QUIT,
 } State;
 
@@ -34,8 +38,13 @@ int main(void)
 		/* Draw app */
 		BeginDrawing();
 		ClearBackground(WHITE);
-		
 		draw_objects();
+		switch ( state ) {
+			case NEW_OBJ:  { if ( draw_new_object_win() )  state = RUN; break; }
+			case EDIT_OBJ: { if ( draw_edit_object_win() ) state = RUN; break; }
+			case IMG_LIST: { if ( draw_img_list_win() )    state = RUN; break; }
+			default: break;
+		}
 		draw_main_menu();
 		EndDrawing();
 	}
@@ -58,16 +67,29 @@ void process_file_drop(void)
 
 void draw_main_menu(void)
 {
-	/* Button dimensions */
-	int w = 60;
-	int h = 20;
-	int pad = 4;
-	
 	/* Panel */
-	Rectangle bounds = (Rectangle){ 0, 0, GetScreenWidth(), h+pad*2 };
+	Rectangle bounds = (Rectangle){ 0, 0, GetScreenWidth(), STD_H+PAD*2 };
 	GuiPanel(bounds, NULL);
 	
+	/* Left Side Buttons */
+	/***************************************/
+	Rectangle bounds_btn = { 0 };
+	
+	/* New Object Button */
+	bounds_btn = (Rectangle){ PAD, PAD, STD_W, STD_H };
+	if ( GuiButton(bounds_btn, "New Object") ) state = NEW_OBJ;
+	
+	/* Edit Object Button */
+	bounds_btn.x += bounds_btn.width + PAD;
+	if ( GuiButton(bounds_btn, "Edit Object") ) state = EDIT_OBJ;
+	
+	/* Image List Button */
+	bounds_btn.x += bounds_btn.width + PAD;
+	if ( GuiButton(bounds_btn, "Image List") ) state = IMG_LIST;
+	
+	/* Right Side Buttons */
+	/***************************************/
 	/* Quit Button */
-	Rectangle bounds_btn = (Rectangle){ GetScreenWidth() - w - pad, pad, w, h };
+	bounds_btn.x = GetScreenWidth() - bounds_btn.width - PAD;
 	if ( GuiButton(bounds_btn, "Quit") ) state = QUIT;
 }
