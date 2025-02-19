@@ -40,9 +40,9 @@ int main(void)
 		ClearBackground(WHITE);
 		draw_objects();
 		switch ( state ) {
-			case NEW_OBJ:  { if ( draw_new_object_win() )  state = RUN; GuiEnable(); break; }
-			case EDIT_OBJ: { if ( draw_edit_object_win() ) state = RUN; GuiEnable(); break; }
-			case IMG_LIST: { if ( draw_img_list_win() )    state = RUN; GuiEnable(); break; }
+			case NEW_OBJ:  if ( draw_new_object_win() )  { state = RUN; GuiEnable(); } break;
+			case EDIT_OBJ: if ( draw_edit_object_win() ) { state = RUN; GuiEnable(); } break;
+			case IMG_LIST: if ( draw_img_list_win() )    { state = RUN; GuiEnable(); } break;
 			default: break;
 		}
 		draw_main_menu();

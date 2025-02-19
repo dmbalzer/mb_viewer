@@ -58,6 +58,7 @@ static void _deselect_all_objects(void)
 
 static void _select_objects(void)
 {
+	if ( GuiGetState() == STATE_DISABLED ) return;
 	if ( IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ) {
 		for ( Object* o = head.next; o != NULL; o = o->next ) {
 			if ( CheckCollisionPointRec(GetMousePosition(), o->rect) ) {
@@ -76,6 +77,7 @@ static void _select_objects(void)
 
 static void _move_objects(void)
 {
+	if ( GuiGetState() == STATE_DISABLED ) return;
 	static bool moving = false;
 	if ( IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ) {
 		for ( Object* o = head.next; o != NULL; o = o->next ) {
@@ -111,10 +113,10 @@ void draw_objects(void)
 		if ( o->obj == NULL ) {
 			GuiDummyRec(o->rect, TextFormat("Object %d", o->id));
 		}
-		DrawRectangleLinesEx(
-			o->rect,
-			GuiGetStyle(BUTTON, BORDER_WIDTH),
-			GetColor(GuiGetStyle(DEFAULT, o->selected ? BORDER_COLOR_FOCUSED : BORDER_COLOR_NORMAL)));
+		Color border_color = { 0 };
+		if ( GuiGetState() == STATE_DISABLED ) border_color = GetColor(GuiGetStyle(DEFAULT, BORDER_COLOR_DISABLED));
+		else border_color = GetColor(GuiGetStyle(DEFAULT, o->selected ? BORDER_COLOR_FOCUSED : BORDER_COLOR_NORMAL));
+		DrawRectangleLinesEx(o->rect, GuiGetStyle(BUTTON, BORDER_WIDTH), border_color); 
 	}
 }
 
