@@ -51,7 +51,7 @@ void process_file_drop(void)
 {
 	FilePathList fpl = LoadDroppedFiles();
 	for ( int i = 0; i < fpl.count; i++ ) {
-		
+		process_dropped_imgs(fpl.paths[i]);
 	}
 	UnloadDroppedFiles(fpl);
 }

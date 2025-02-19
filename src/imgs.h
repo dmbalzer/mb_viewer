@@ -19,16 +19,17 @@ struct _img {
 	char name[256];
 	Image image;
 	Texture texture;
-	int frame;
-	float delay;
-	float timer;
+	int count;		/* Used only for gifs in update */
+	int frame;		/* Used only for gifs in update */
+	float delay;	/* Used only for gifs in update */
+	float timer;	/* Used only for gifs in update */
 	Img* next;
 };
 
+void load_imgs(void);
 void unload_imgs(void);
-void update_imgs(void);
-/* New imgs are created with the new object window */
-void process_dropped_imgs(FilePathList fpl);
+void update_imgs(void); /* animating gif imgs */
+void process_dropped_imgs(const char* path);
 int draw_img_list_win(void);
 
 #endif // IMGS_INCLUDED

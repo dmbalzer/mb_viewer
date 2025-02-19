@@ -31,6 +31,7 @@ struct _object {
 	Object* next;
 };
 
+void load_objects(void);
 void unload_objects(void);
 void update_objects(void);
 void draw_objects(void);

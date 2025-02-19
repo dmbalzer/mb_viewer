@@ -5,6 +5,11 @@
 
 static int id = 0;
 
+void load_imgs(void)
+{
+	
+}
+
 void unload_imgs(void)
 {
 	
@@ -15,7 +20,7 @@ void update_imgs(void)
 	
 }
 
-void process_dropped_imgs(FilePathList fpl)
+void process_dropped_imgs(const char* path)
 {
 	
 }

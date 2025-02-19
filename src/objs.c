@@ -5,6 +5,11 @@
 
 static int id = 0;
 
+void load_objects(void)
+{
+	
+}
+
 void unload_objects(void)
 {
 	
