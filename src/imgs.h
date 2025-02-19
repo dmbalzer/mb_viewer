@@ -29,6 +29,7 @@ struct _img {
 void load_imgs(void);
 void unload_imgs(void);
 void update_imgs(void); /* animating gif imgs */
+/* New imgs are created by dropping a '.png' '.jpg' or '.gif' */
 void process_dropped_imgs(const char* path);
 int draw_img_list_win(void);
 
