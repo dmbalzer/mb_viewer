@@ -8,11 +8,13 @@ static int id = 0;
 static Img head = { 0 };
 static Img* tail = &head;
 
-static void _new_img(void)
+static void _new_img(const char* path)
 {
 	Img* o = MemAlloc(sizeof(Img));
 	if ( o == NULL ) { TraceLog(LOG_ERROR, "Error creating img."); return; }
 	o->id = id++;
+	o->image = LoadImageAnim(path, &o->count);
+	
 	tail->next = o;
 	tail = o;
 }
@@ -43,7 +45,8 @@ void update_imgs(void)
 
 void process_dropped_imgs(const char* path)
 {
-	
+	if ( !IsFileExtension(path, ".png") && !IsFileExtension(path, ".jpg") && !IsFileExtension(path, ".gif") ) return;
+	_new_img(path);
 }
 
 int draw_img_list_win(void)
