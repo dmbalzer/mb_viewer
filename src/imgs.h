@@ -32,6 +32,7 @@ void update_imgs(void); /* animating gif imgs */
 /* New imgs are created by dropping a '.png' '.jpg' or '.gif' */
 void process_dropped_imgs(const char* path);
 int draw_img_list_win(void);
+const char* get_img_name_str(void);
 
 #endif // IMGS_INCLUDED
 

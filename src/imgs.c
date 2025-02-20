@@ -36,6 +36,8 @@ void unload_imgs(void)
 	while ( o != NULL ) {
 		int _id = o->id;
 		Img* tmp = o;
+		UnloadTexture(tmp->texture);
+		UnloadImage(tmp->image);
 		o = o->next;
 		free(tmp);
 		TraceLog(LOG_INFO, TextFormat("IMG [ID %d] unloaded.", _id));
@@ -64,15 +66,6 @@ int draw_img_list_win(void)
 	Rectangle bounds = (Rectangle){ x, y, STD_WIN_W, STD_WIN_H };
 	if ( GuiWindowBox(bounds, "Image List") ) result = 1;
 	
-	/* Img name buffer for list items */
-	char buff[1024] = { 0 };
-	int cursor = 0;
-	for ( Img* o = head.next; o != NULL; o = o->next ) {
-		TextAppend(buff, o->name, &cursor);
-		TextAppend(buff, ";", &cursor);
-	}
-	buff[cursor] = '\0';
-	
 	/* Selection List */
 	static int scroll_idx = 0;
 	static int active = 0;
@@ -81,7 +74,7 @@ int draw_img_list_win(void)
 		bounds.y + 24 + PAD,
 		bounds.width - PAD*2,
 		(bounds.height - 24 - PAD*2) - (STD_H * 2) - (PAD * 2)};
-	GuiListView(bounds_list, buff, &scroll_idx, &active);
+	GuiListView(bounds_list, get_img_name_str(), &scroll_idx, &active);
 	
 	/* Submit Button */
 	Rectangle bounds_btn = (Rectangle){
@@ -95,4 +88,17 @@ int draw_img_list_win(void)
 	
 	GuiDisable();
 	return result;
+}
+
+const char* get_img_name_str(void)
+{
+	static char buff[1024] = { 0 };
+	buff[0] = '\0';
+	int cursor = 0;
+	for ( Img* o = head.next; o != NULL; o = o->next ) {
+		TextAppend(buff, o->name, &cursor);
+		TextAppend(buff, ";", &cursor);
+	}
+	buff[cursor - 1] = '\0';
+	return buff;
 }
