@@ -26,19 +26,19 @@ static SDL_Renderer* renderer = NULL;
 static bool quit = false;
 static Uint64 frametime = 0;
 
-static SDL_Texture* tex = NULL;
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 
+static SDL_Texture** textures = NULL;
+
 static void sdl__process_drop_file(SDL_DropEvent drop)
 {
-	// if ( util_is_png(drop.data) ) {
-		tex = sdl_load_image(drop.data);
-	// }
+	if ( util_is_png(drop.data) ) {
+		arrput(textures, sdl_load_image(drop.data));
+	}
 }
 
 void sdl_init(void)
@@ -64,7 +64,9 @@ void sdl_begin_draw(void)
 {
 	SDL_SetRenderDrawColor(renderer, 0x50,0x50,0x50,0xFF);
 	SDL_RenderClear(renderer);
-	sdl_blit(tex, 0, 0);
+	for ( int i = 0; i < arrlen(textures); i++ ) {
+		sdl_blit(textures[i], 0, 0);
+	}
 }
 
 void sdl_end_draw(void)
@@ -78,7 +80,10 @@ void sdl_end_draw(void)
 
 void sdl_unload(void)
 {
-	SDL_DestroyTexture(tex);
+	for ( int i = 0; i < arrlen(textures); i++ ) {
+		SDL_DestroyTexture(textures[i]);
+	}
+	arrfree(textures);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
