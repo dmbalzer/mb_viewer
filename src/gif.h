@@ -21,7 +21,7 @@ void gif_blit(Gif* gif, int x, int y);
 #if defined(GIF_IMPLEMENTATION)
 
 #include <SDL3/SDL.h>
-#undef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 extern SDL_Renderer* renderer;

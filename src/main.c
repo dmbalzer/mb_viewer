@@ -1,7 +1,5 @@
 #define UTIL_IMPLEMENTATION
 #include "util.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #define SDL_IMPLEMENTATION
 #include "sdl.h"
 #define GIF_IMPLEMENTATION
