@@ -3,35 +3,9 @@
 
 #include <SDL3/SDL.h>
 
-typedef enum {
-	PNG=0,
-	GIF,
-} ImageType;
-
-typedef struct {
-	int x;
-	int y;
-	ImageType img_type;
-	void* img;
-} Obj;
-
-typedef struct {
-	SDL_Texture* texture;
-	int w;
-	int h;
-	int qty;
-	int frame;
-	Uint64 delay;
-	Uint64 timer;
-} Gif;
-
-Gif* sdl_load_gif(const char* fn);
-void sdl_destroy_gif(Gif* gif);
-void sdl_anim_gif(Gif* gif);
-void sdl_blit_gif(Gif* gif, int x, int y);
-
 void sdl_init(void);
 void sdl_process_events(void);
+void sdl_set_drop_callback(void (*cb)(const char* fn));
 void sdl_begin_draw(void);
 void sdl_end_draw(void);
 void sdl_unload(void);
@@ -45,98 +19,14 @@ SDL_Texture* sdl_load_png(const char* fn);
 
 #if defined(SDL_IMPLEMENTATION)
 
-#undef UTIL_IMPLEMENTATION
-#include "util.h"
-
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 static bool quit = false;
 static Uint64 frametime = 0;
+static void (*drop_cb)(const char* fn);
 
-#define STB_IMAGE_IMPLEMENTATION
+#undef STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
-#define STB_DS_IMPLEMENTATION
-#include "stb_ds.h"
-
-static SDL_Texture** textures = NULL;
-static Gif** gifs = NULL;
-static Obj** objs = NULL;
-
-static void sdl__process_drop_file(SDL_DropEvent drop)
-{
-	if ( util_is_png(drop.data) ) {
-		SDL_Texture* t = sdl_load_png(drop.data);
-		arrput(textures, t);
-		SDL_Log("[PNG][%s] Loaded.", drop.data);
-		Obj* o = SDL_calloc(1, sizeof(Obj));
-		o->img_type = PNG;
-		o->img = (void*)t;	
-		arrput(objs, o);
-	} else if ( util_is_gif(drop.data) ) {
-		Gif* g = sdl_load_gif(drop.data);
-		arrput(gifs, g);
-		SDL_Log("[GIF][%s] Loaded.", drop.data);
-		Obj* o = SDL_calloc(1, sizeof(Obj));
-		o->img_type = GIF;
-		o->img = (void*)g;	
-		arrput(objs, o);
-	}
-}
-
-Gif* sdl_load_gif(const char* fn)
-{
-	if ( fn == NULL ) return NULL;
-	size_t len;
-	unsigned char* buff = SDL_LoadFile(fn, &len);
-	if ( buff == NULL ) return NULL;
-	int w,h,q,n;
-	int* d = NULL;
-	stbi_uc* data = stbi_load_gif_from_memory(buff, len, &d, &w, &h, &q, &n, 4);
-	if ( data == NULL ) { SDL_free(buff); SDL_free(d); return NULL; }
-	if ( d[0] == 0 ) d[0] = 100;
-	Gif* gif = SDL_calloc(1, sizeof(Gif));
-	if ( gif == NULL ) { SDL_free(buff); SDL_free(d); stbi_image_free(data); return NULL; }
-	gif->w = w;
-	gif->h = h;
-	gif->qty = q;
-	SDL_Log("%d", q);
-	gif->delay = d[0];
-	gif->texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, w*q, h);
-	for ( int i = 0; i < q; i++ ) {
-		SDL_Rect src = (SDL_Rect){w*i, 0, w, h};
-		SDL_UpdateTexture(gif->texture, &src, (void*)(data + w*h*4*i), w*4);
-	}
-	SDL_free(buff);
-	SDL_free(d);
-	stbi_image_free(data);
-	return gif;
-}
-
-void sdl_destroy_gif(Gif* gif)
-{
-	if ( gif == NULL ) return;
-	SDL_DestroyTexture(gif->texture);
-	SDL_free(gif);
-}
-
-void sdl_anim_gif(Gif* gif)
-{
-	gif->timer += frametime;
-	if ( gif->timer >= gif->delay ) {
-		gif->timer = 0;
-		gif->frame = ( gif->frame + 1 ) % gif->qty;
-	}
-}
-
-void sdl_blit_gif(Gif* gif, int x, int y)
-{
-	if ( gif == NULL ) return;
-	if ( gif->texture == NULL ) return;
-	SDL_FRect src = (SDL_FRect){ gif->w*gif->frame, 0, gif->w, gif->h };
-	SDL_FRect dst = (SDL_FRect){ x, y, gif->w, gif->h };
-	SDL_RenderTexture(renderer, gif->texture, &src, &dst);
-}
 
 void sdl_init(void)
 {
@@ -152,25 +42,20 @@ void sdl_process_events(void)
 		switch ( ev.type ) {
 			case SDL_EVENT_QUIT: quit = true; break;
 			case SDL_EVENT_KEY_DOWN: if ( ev.key.key == SDLK_ESCAPE ) quit = true; break;
-			case SDL_EVENT_DROP_FILE: sdl__process_drop_file(ev.drop); break;
+			case SDL_EVENT_DROP_FILE: drop_cb(ev.drop.data); break;
 		}
 	}
 }
 
+void sdl_set_drop_callback(void (*cb)(const char* fn))
+{
+	drop_cb = cb;
+}
+
 void sdl_begin_draw(void)
 {
-	for ( int i = 0; i < arrlen(gifs); i++ ) {
-		sdl_anim_gif(gifs[i]);
-	}
 	SDL_SetRenderDrawColor(renderer, 0x50,0x50,0x50,0xFF);
 	SDL_RenderClear(renderer);
-	for ( int i = 0; i < arrlen(objs); i++ ) {
-		switch ( objs[i]->img_type ) {
-			case PNG: sdl_blit((SDL_Texture*)objs[i]->img, objs[i]->x, objs[i]->y); break;
-			case GIF: sdl_blit_gif((Gif*)objs[i]->img, objs[i]->x, objs[i]->y); break;
-		}
-
-	}
 }
 
 void sdl_end_draw(void)
@@ -184,18 +69,6 @@ void sdl_end_draw(void)
 
 void sdl_unload(void)
 {
-	for ( int i = 0; i < arrlen(gifs); i++ ) {
-		sdl_destroy_gif(gifs[i]);
-	}
-	arrfree(gifs);
-	for ( int i = 0; i < arrlen(textures); i++ ) {
-		SDL_DestroyTexture(textures[i]);
-	}
-	arrfree(textures);
-	for ( int i = 0; i < arrlen(objs); i++ ) {
-		SDL_free(objs[i]);
-	}
-	arrfree(objs);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
