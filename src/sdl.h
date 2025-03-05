@@ -12,7 +12,7 @@ bool sdl_quit(void);
 SDL_Renderer* sdl_renderer(void);
 Uint64 sdl_frametime(void);
 void sdl_blit(SDL_Texture* texture, int x, int y);
-SDL_Texture* sdl_load_image(const char* fn);
+SDL_Texture* sdl_load_png(const char* fn);
 
 #endif // SDL_INCLUDED
 
@@ -37,7 +37,7 @@ static SDL_Texture** textures = NULL;
 static void sdl__process_drop_file(SDL_DropEvent drop)
 {
 	if ( util_is_png(drop.data) ) {
-		arrput(textures, sdl_load_image(drop.data));
+		arrput(textures, sdl_load_png(drop.data));
 	}
 }
 
@@ -102,7 +102,7 @@ void sdl_blit(SDL_Texture* texture, int x, int y)
 	SDL_RenderTexture(renderer, texture, NULL, &dst);
 }
 
-SDL_Texture* sdl_load_image(const char* fn)
+SDL_Texture* sdl_load_png(const char* fn)
 {
 	int w, h, n;
 	stbi_uc* data = stbi_load(fn, &w, &h, &n, 4);
