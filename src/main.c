@@ -1,3 +1,5 @@
+#define UTIL_IMPLEMENTATION
+#include "util.h"
 #define SDL_IMPLEMENTATION
 #include "sdl.h"
 

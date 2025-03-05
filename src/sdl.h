@@ -16,10 +16,18 @@ Uint64 sdl_frametime(void);
 
 #if defined(SDL_IMPLEMENTATION)
 
+#undef UTIL_IMPLEMENTATION
+#include "util.h"
+
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 static bool quit = false;
 static Uint64 frametime = 0;
+
+static void sdl__process_drop_file(SDL_DropEvent drop)
+{
+	if ( util_is_png(drop.data) ) SDL_Log(drop.data);	
+}
 
 void sdl_init(void)
 {
@@ -35,6 +43,7 @@ void sdl_process_events(void)
 		switch ( ev.type ) {
 			case SDL_EVENT_QUIT: quit = true; break;
 			case SDL_EVENT_KEY_DOWN: if ( ev.key.key == SDLK_ESCAPE ) quit = true; break;
+			case SDL_EVENT_DROP_FILE: sdl__process_drop_file(ev.drop); break;
 		}
 	}
 }
