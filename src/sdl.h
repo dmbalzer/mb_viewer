@@ -12,6 +12,7 @@ bool sdl_quit(void);
 SDL_Renderer* sdl_renderer(void);
 Uint64 sdl_frametime(void);
 void sdl_blit(SDL_Texture* texture, int x, int y);
+SDL_Texture* sdl_load_image(const char* fn);
 
 #endif // SDL_INCLUDED
 
@@ -25,7 +26,7 @@ static SDL_Renderer* renderer = NULL;
 static bool quit = false;
 static Uint64 frametime = 0;
 
-static SDL_Texture* texture = NULL;
+static SDL_Texture* tex = NULL;
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -35,14 +36,9 @@ static SDL_Texture* texture = NULL;
 
 static void sdl__process_drop_file(SDL_DropEvent drop)
 {
-	if ( util_is_png(drop.data) ) {
-		int w, h, n;
-		stbi_uc* data = stbi_load(drop.data, &w, &h, &n, 4);
-		SDL_DestroyTexture(texture);
-		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, w, h);
-		SDL_UpdateTexture(texture, NULL, (void*)data, w*4);
-		stbi_image_free(data);
-	}
+	// if ( util_is_png(drop.data) ) {
+		tex = sdl_load_image(drop.data);
+	// }
 }
 
 void sdl_init(void)
@@ -68,7 +64,7 @@ void sdl_begin_draw(void)
 {
 	SDL_SetRenderDrawColor(renderer, 0x50,0x50,0x50,0xFF);
 	SDL_RenderClear(renderer);
-	sdl_blit(texture, 0, 0);
+	sdl_blit(tex, 0, 0);
 }
 
 void sdl_end_draw(void)
@@ -82,6 +78,7 @@ void sdl_end_draw(void)
 
 void sdl_unload(void)
 {
+	SDL_DestroyTexture(tex);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -98,6 +95,17 @@ void sdl_blit(SDL_Texture* texture, int x, int y)
 	if ( texture == NULL ) return;
 	SDL_FRect dst = (SDL_FRect){ x, y, texture->w, texture->h };
 	SDL_RenderTexture(renderer, texture, NULL, &dst);
+}
+
+SDL_Texture* sdl_load_image(const char* fn)
+{
+	int w, h, n;
+	stbi_uc* data = stbi_load(fn, &w, &h, &n, 4);
+	if ( data == NULL ) return NULL;
+	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, w, h);
+	SDL_UpdateTexture(texture, NULL, (void*)data, w*4);
+	stbi_image_free(data);
+	return texture;
 }
 
 #endif // SDL_IMPLEMENTATION
