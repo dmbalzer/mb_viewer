@@ -17,11 +17,11 @@ typedef struct {
 	int y;
 	ImageType img_type;
 	void* img;
-} Obj;
+} Entity;
 
 static Gif** gifs = NULL;
 static SDL_Texture** textures = NULL;
-static Obj** objs = NULL;
+static Entity** ents = NULL;
 
 static void process_drop_file(const char* fn)
 {
@@ -29,18 +29,18 @@ static void process_drop_file(const char* fn)
 		SDL_Texture* t = sdl_load_png(fn);
 		arrput(textures, t);
 		SDL_Log("[PNG][%s] Loaded.", fn);
-		Obj* o = SDL_calloc(1, sizeof(Obj));
-		o->img_type = PNG;
-		o->img = (void*)t;	
-		arrput(objs, o);
+		Entity* e = SDL_calloc(1, sizeof(Entity));
+		e->img_type = PNG;
+		e->img = (void*)t;	
+		arrput(ents, e);
 	} else if ( util_is_gif(fn) ) {
 		Gif* g = gif_load(fn);
 		arrput(gifs, g);
 		SDL_Log("[GIF][%s] Loaded.", fn);
-		Obj* o = SDL_calloc(1, sizeof(Obj));
-		o->img_type = GIF;
-		o->img = (void*)g;	
-		arrput(objs, o);
+		Entity* e = SDL_calloc(1, sizeof(Entity));
+		e->img_type = GIF;
+		e->img = (void*)g;	
+		arrput(ents, e);
 	}
 }
 
@@ -50,15 +50,19 @@ int main(void)
 	sdl_set_drop_callback(process_drop_file);
 	while ( !sdl_quit() ) {
 		sdl_process_events();
+		
+		/* animate gifs */
 		for ( int i = 0; i < arrlen(gifs); i++ ) {
 			gif_anim(gifs[i]);
 		}
+		
 		sdl_begin_draw();
 		
-		for ( int i = 0; i < arrlen(objs); i++ ) {
-			switch ( objs[i]->img_type ) {
-				case PNG: sdl_blit((SDL_Texture*)objs[i]->img, objs[i]->x, objs[i]->y); break;
-				case GIF: gif_blit((Gif*)objs[i]->img, objs[i]->x, objs[i]->y); break;
+		/* draw objects */
+		for ( int i = 0; i < arrlen(ents); i++ ) {
+			switch ( ents[i]->img_type ) {
+				case PNG: sdl_blit((SDL_Texture*)ents[i]->img, ents[i]->x, ents[i]->y); break;
+				case GIF: gif_blit((Gif*)ents[i]->img, ents[i]->x, ents[i]->y); break;
 			}
 		}
 		
@@ -73,10 +77,10 @@ int main(void)
 		SDL_DestroyTexture(textures[i]);
 	}
 	arrfree(textures);
-	for ( int i = 0; i < arrlen(objs); i++ ) {
-		SDL_free(objs[i]);
+	for ( int i = 0; i < arrlen(ents); i++ ) {
+		SDL_free(ents[i]);
 	}
-	arrfree(objs);
+	arrfree(ents);
 	
 	sdl_unload();
 	return 0;
