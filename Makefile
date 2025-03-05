@@ -1,8 +1,7 @@
 SRC += src/*.c
 FLG += -std=c99
 FLG += -Wall
-LNK += -lopengl32
-LNK += -lgdi32
+LNK += -lSDL3
 BIN += mb_viewer
 
 build:
