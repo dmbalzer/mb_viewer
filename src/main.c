@@ -10,38 +10,52 @@
 typedef enum {
 	PNG=0,
 	GIF,
-} ImageType;
+} ComponentType;
+
+typedef struct {
+	void* data;
+	ComponentType type;
+} Component;
 
 typedef struct {
 	int x;
 	int y;
-	ImageType img_type;
-	void* img;
+	Component** comps;
 } Entity;
 
+static SDL_Texture** texs = NULL;
 static Gif** gifs = NULL;
-static SDL_Texture** textures = NULL;
 static Entity** ents = NULL;
 
 static void process_drop_file(const char* fn)
 {
+	Component* c = NULL;
 	if ( util_is_png(fn) ) {
 		SDL_Texture* t = sdl_load_png(fn);
-		arrput(textures, t);
+		if ( t == NULL ) return;
 		SDL_Log("[PNG][%s] Loaded.", fn);
-		Entity* e = SDL_calloc(1, sizeof(Entity));
-		e->img_type = PNG;
-		e->img = (void*)t;	
-		arrput(ents, e);
+		arrput(texs, t);
+		c = SDL_calloc(1, sizeof(Component));
+		if ( c == NULL ) return;
+		c->data = (void*)t;
+		c->type = PNG;
 	} else if ( util_is_gif(fn) ) {
 		Gif* g = gif_load(fn);
-		arrput(gifs, g);
+		if ( g == NULL ) return;
 		SDL_Log("[GIF][%s] Loaded.", fn);
-		Entity* e = SDL_calloc(1, sizeof(Entity));
-		e->img_type = GIF;
-		e->img = (void*)g;	
-		arrput(ents, e);
+		arrput(gifs, g);
+		c = SDL_calloc(1, sizeof(Component));
+		if ( c == NULL ) return;
+		c->data = (void*)g;
+		c->type = GIF;
 	}
+	
+	if ( c == NULL ) return;
+	Entity* e = SDL_calloc(1, sizeof(Entity));
+	if ( e == NULL ) { SDL_free(c); return; }
+
+	arrput(e->comps, c);
+	arrput(ents, e);
 }
 
 int main(void)
@@ -60,12 +74,14 @@ int main(void)
 		
 		/* draw objects */
 		for ( int i = 0; i < arrlen(ents); i++ ) {
-			switch ( ents[i]->img_type ) {
-				case PNG: sdl_blit((SDL_Texture*)ents[i]->img, ents[i]->x, ents[i]->y); break;
-				case GIF: gif_blit((Gif*)ents[i]->img, ents[i]->x, ents[i]->y); break;
+			for ( int j = 0; j < arrlen(ents[i]->comps); j++ ) {
+				Component* c = ents[i]->comps[j];
+				switch ( c->type ) {
+					case PNG: sdl_blit((SDL_Texture*)c->data, ents[i]->x, ents[i]->y); break;
+					case GIF: gif_blit((Gif*)c->data, ents[i]->x, ents[i]->y); break;
+				}
 			}
 		}
-		
 		sdl_end_draw();
 	}
 	
@@ -73,11 +89,17 @@ int main(void)
 		gif_destroy(gifs[i]);
 	}
 	arrfree(gifs);
-	for ( int i = 0; i < arrlen(textures); i++ ) {
-		SDL_DestroyTexture(textures[i]);
+
+	for ( int i = 0; i < arrlen(texs); i++ ) {
+		SDL_DestroyTexture(texs[i]);
 	}
-	arrfree(textures);
+	arrfree(texs);
+
 	for ( int i = 0; i < arrlen(ents); i++ ) {
+		for ( int j = 0; j < arrlen(ents[i]->comps); j++ ) {
+			SDL_free(ents[i]->comps[j]);
+			arrfree(ents[i]->comps);
+		}		
 		SDL_free(ents[i]);
 	}
 	arrfree(ents);
