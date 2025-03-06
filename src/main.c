@@ -21,15 +21,33 @@ typedef struct {
 	int x;
 	int y;
 	Component** comps;
+	bool selected;
 } Entity;
 
 static SDL_Texture** texs = NULL;
 static Gif** gifs = NULL;
 static Entity** ents = NULL;
 
+static void get_comp_width(Component* c, int* w, int* h)
+{
+	switch ( c->type ) {
+		case PNG:
+			SDL_Texture* t = (SDL_Texture*)c->data;
+			*w = t->w;
+			*h = t->h;
+		break;
+		case GIF:
+			Gif* g = (Gif*)c->data;
+			*w = g->w;
+			*h = g->h;
+		break;
+	}
+}
+
 static void process_drop_file(const char* fn)
 {
 	Component* c = NULL;
+	/* PNG drop */
 	if ( util_is_png(fn) ) {
 		SDL_Texture* t = sdl_load_png(fn);
 		if ( t == NULL ) return;
@@ -39,6 +57,7 @@ static void process_drop_file(const char* fn)
 		if ( c == NULL ) return;
 		c->data = (void*)t;
 		c->type = PNG;
+	/* GIF drop */
 	} else if ( util_is_gif(fn) ) {
 		Gif* g = gif_load(fn);
 		if ( g == NULL ) return;
@@ -49,7 +68,6 @@ static void process_drop_file(const char* fn)
 		c->data = (void*)g;
 		c->type = GIF;
 	}
-	
 	if ( c == NULL ) return;
 	Entity* e = SDL_calloc(1, sizeof(Entity));
 	if ( e == NULL ) { SDL_free(c); return; }
@@ -58,10 +76,38 @@ static void process_drop_file(const char* fn)
 	arrput(ents, e);
 }
 
+static void check_entity_select(SDL_Point pos)
+{
+	Entity* e = NULL;
+	for ( int i = 0; i < arrlen(ents); i++ ) {
+		int w = 0;
+		int h = 0;
+		for ( int j = 0; j < arrlen(ents[i]->comps); j++ ) {
+			get_comp_width(ents[i]->comps[j], &w, &h);
+			if ( w != 0 && h != 0 ) {
+				SDL_Rect rec = (SDL_Rect){ ents[i]->x, ents[i]->y, w, h };
+				if ( SDL_PointInRect(&pos, &rec) ) {
+					e = ents[i];
+				}
+				break;
+			}
+		}
+	}
+	if ( e != NULL ) e->selected = true;
+}
+
+static void mouse_press(Uint8 button, SDL_Point pos)
+{
+	if ( SDL_BUTTON_MASK(button) & SDL_BUTTON_LMASK ) check_entity_select(pos);
+	if ( SDL_BUTTON_MASK(button) & SDL_BUTTON_RMASK ) SDL_Log("R");
+}
+
 int main(void)
 {
 	sdl_init();
 	sdl_set_drop_callback(process_drop_file);
+	sdl_set_mouse_press_callback(mouse_press);
+
 	while ( !sdl_quit() ) {
 		sdl_process_events();
 		
@@ -72,13 +118,26 @@ int main(void)
 		
 		sdl_begin_draw();
 		
-		/* draw objects */
+		/* draw entities */
 		for ( int i = 0; i < arrlen(ents); i++ ) {
 			for ( int j = 0; j < arrlen(ents[i]->comps); j++ ) {
 				Component* c = ents[i]->comps[j];
 				switch ( c->type ) {
 					case PNG: sdl_blit((SDL_Texture*)c->data, ents[i]->x, ents[i]->y); break;
 					case GIF: gif_blit((Gif*)c->data, ents[i]->x, ents[i]->y); break;
+				}
+			}
+			if ( ents[i]->selected ) {
+				int w = 0;
+				int h = 0;
+				for ( int j = 0; j < arrlen(ents[i]->comps); j++ ) {
+					get_comp_width(ents[i]->comps[j], &w, &h);
+					if ( w != 0 && h != 0 ) break;
+				}
+				if ( w != 0 && h != 0 ) {
+					SDL_SetRenderDrawColor(sdl_renderer(), 0xFF,0xFF,0xFF,0xFF);
+					SDL_FRect rec = (SDL_FRect){ ents[i]->x, ents[i]->y, w, h };
+					SDL_RenderRect(sdl_renderer(), &rec);
 				}
 			}
 		}
