@@ -99,7 +99,7 @@ static void check_entity_select(SDL_Point pos)
 static void mouse_press(Uint8 button, SDL_Point pos)
 {
 	if ( SDL_BUTTON_MASK(button) & SDL_BUTTON_LMASK ) check_entity_select(pos);
-	if ( SDL_BUTTON_MASK(button) & SDL_BUTTON_RMASK ) SDL_Log("R");
+	if ( SDL_BUTTON_MASK(button) & SDL_BUTTON_RMASK ) for ( int i = 0; i < arrlen(ents); i++ ) ents[i]->selected = false;
 }
 
 int main(void)
