@@ -76,7 +76,7 @@ static void process_drop_file(const char* fn)
 	arrput(ents, e);
 }
 
-static void check_entity_select(SDL_Point pos)
+static Entity* get_top_entity_in_point(SDL_Point pos)
 {
 	Entity* e = NULL;
 	for ( int i = 0; i < arrlen(ents); i++ ) {
@@ -93,6 +93,12 @@ static void check_entity_select(SDL_Point pos)
 			}
 		}
 	}
+	return e;
+}
+
+static void check_entity_select(SDL_Point pos)
+{
+	Entity* e = get_top_entity_in_point(pos);
 	if ( e != NULL ) e->selected = true;
 }
 
@@ -102,11 +108,17 @@ static void mouse_press(Uint8 button, SDL_Point pos)
 	if ( SDL_BUTTON_MASK(button) & SDL_BUTTON_RMASK ) for ( int i = 0; i < arrlen(ents); i++ ) ents[i]->selected = false;
 }
 
-/* TODO */
 static void mouse_motion(float dx, float dy)
 {
 	SDL_FPoint pos = { 0 };
 	if ( !(SDL_BUTTON_LMASK & SDL_GetMouseState(&pos.x, &pos.y)) ) return;
+	if ( get_top_entity_in_point((SDL_Point){ pos.x, pos.y }) == NULL ) return;
+	for ( int i = 0; i < arrlen(ents); i++ ) {
+		if ( ents[i]->selected ) {
+			ents[i]->x += (int)dx;
+			ents[i]->y += (int)dy;
+		}
+	}
 }
 
 int main(void)
@@ -114,6 +126,7 @@ int main(void)
 	sdl_init();
 	sdl_set_drop_callback(process_drop_file);
 	sdl_set_mouse_press_callback(mouse_press);
+	sdl_set_mouse_motion_callback(mouse_motion);
 
 	while ( !sdl_quit() ) {
 		sdl_process_events();

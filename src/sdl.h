@@ -7,6 +7,7 @@ void sdl_init(void);
 void sdl_process_events(void);
 void sdl_set_drop_callback(void (*cb)(const char* fn));
 void sdl_set_mouse_press_callback(void (*cb)(Uint8 button, SDL_Point pos));
+void sdl_set_mouse_motion_callback(void (*cb)(float dx, float dy));
 void sdl_begin_draw(void);
 void sdl_end_draw(void);
 void sdl_unload(void);
@@ -26,6 +27,7 @@ static bool quit = false;
 static Uint64 frametime = 0;
 static void (*drop_cb)(const char* fn);
 static void (*mpress_cb)(Uint8 button, SDL_Point pos);
+static void (*mmotion_cb)(float dx, float dy);
 
 #undef STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -46,13 +48,14 @@ void sdl_process_events(void)
 			case SDL_EVENT_KEY_DOWN: if ( ev.key.key == SDLK_ESCAPE ) quit = true; break;
 			case SDL_EVENT_DROP_FILE: if ( drop_cb != NULL ) drop_cb(ev.drop.data); break;
 			case SDL_EVENT_MOUSE_BUTTON_DOWN: if ( mpress_cb != NULL ) mpress_cb(ev.button.button, (SDL_Point){ (int)ev.button.x, (int)ev.button.y }); break;
-			case SDL_EVENT_MOUSE_MOTION: break;
+			case SDL_EVENT_MOUSE_MOTION: if ( mmotion_cb != NULL ) mmotion_cb( ev.motion.xrel, ev.motion.yrel ); break;
 		}
 	}
 }
 
 void sdl_set_drop_callback(void (*cb)(const char* fn)) { drop_cb = cb; }
 void sdl_set_mouse_press_callback(void (*cb)(Uint8 button, SDL_Point pos)) { mpress_cb = cb; }
+void sdl_set_mouse_motion_callback(void (*cb)(float dx, float dy)) { mmotion_cb = cb; }
 
 void sdl_begin_draw(void)
 {
