@@ -46,6 +46,7 @@ void sdl_process_events(void)
 			case SDL_EVENT_KEY_DOWN: if ( ev.key.key == SDLK_ESCAPE ) quit = true; break;
 			case SDL_EVENT_DROP_FILE: if ( drop_cb != NULL ) drop_cb(ev.drop.data); break;
 			case SDL_EVENT_MOUSE_BUTTON_DOWN: if ( mpress_cb != NULL ) mpress_cb(ev.button.button, (SDL_Point){ (int)ev.button.x, (int)ev.button.y }); break;
+			case SDL_EVENT_MOUSE_MOTION: break;
 		}
 	}
 }

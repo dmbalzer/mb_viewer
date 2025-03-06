@@ -102,6 +102,13 @@ static void mouse_press(Uint8 button, SDL_Point pos)
 	if ( SDL_BUTTON_MASK(button) & SDL_BUTTON_RMASK ) for ( int i = 0; i < arrlen(ents); i++ ) ents[i]->selected = false;
 }
 
+/* TODO */
+static void mouse_motion(float dx, float dy)
+{
+	SDL_FPoint pos = { 0 };
+	if ( !(SDL_BUTTON_LMASK & SDL_GetMouseState(&pos.x, &pos.y)) ) return;
+}
+
 int main(void)
 {
 	sdl_init();
