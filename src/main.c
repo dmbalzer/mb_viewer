@@ -5,6 +5,24 @@
 
 Texture* textures = NULL;
 
+void process_drop(void)
+{
+	FilePathList fpl = LoadDroppedFiles();
+	for ( int i = 0; i < fpl.count; i++ ) {
+		if ( IsFileExtension(fpl.paths[i], ".png") ) {
+			arrput(textures, LoadTexture(fpl.paths[i]));
+		}
+	}
+	UnloadDroppedFiles(fpl);
+}
+
+void draw_textures(void)
+{
+	for ( int i = 0; i < arrlen(textures); i++ ) {
+		DrawTexture(textures[i], 16, 16, WHITE);
+	}
+}
+
 int main(void)
 {
 	InitWindow(960, 640, "Modbus Viewer");
@@ -15,25 +33,12 @@ int main(void)
 
 	while ( !WindowShouldClose() ) {
 		
-		if ( IsFileDropped() ) {
-			FilePathList fpl = LoadDroppedFiles();
-
-			for ( int i = 0; i < fpl.count; i++ ) {
-				if ( IsFileExtension(fpl.paths[i], ".png") ) {
-					arrput(textures, LoadTexture(fpl.paths[i]));
-				}
-			}
-
-			UnloadDroppedFiles(fpl);
-		}
+		if ( IsFileDropped() ) process_drop();
 
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 
-		DrawTextEx(font, TextFormat("%s", status ? "ONLINE" : "OFFLINE"), (Vector2){ 16, 16 }, 18, 0, status ? DARKGREEN : DARKGRAY);
-		for ( int i = 0; i < arrlen(textures); i++ ) {
-			DrawTexture(textures[i], 16, 16, WHITE);
-		}
+		draw_textures();
 		
 		EndDrawing();
 	}
