@@ -1,7 +1,7 @@
 SRC += src/*.c
 FLG += -std=c99
 FLG += -Wall
-LNK += -lSDL3
+LNK += -lraylib
 BIN += mb_viewer
 
 build:
