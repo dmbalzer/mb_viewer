@@ -10,8 +10,6 @@ SDL_Renderer* renderer = NULL;
 bool quit = false;
 Uint64 frametime = 0;
 
-SDL_Texture** textures = NULL;
-
 typedef struct {
 	SDL_Texture* texture;
 	IMG_Animation* anim;
@@ -19,6 +17,7 @@ typedef struct {
 	Uint64 timer;
 } Gif;
 
+SDL_Texture** textures = NULL;
 Gif* gifs = NULL;
 
 bool is_png(const char* filename)
