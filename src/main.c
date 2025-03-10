@@ -1,7 +1,6 @@
 #include <SDL3/SDL.h>
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
-#include "mb.h"
 
 void process_drop(void)
 {
