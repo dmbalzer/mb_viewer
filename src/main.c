@@ -1,21 +1,49 @@
 #include <stdlib.h>
+#include <string.h>
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 bool quit = false;
 Uint64 frametime = 0;
 
+SDL_Texture** textures = NULL;
+
+bool is_png(const char* filename)
+{
+	if ( filename == NULL ) return false;
+	size_t len = strlen(filename);
+	return   filename[len-4] == '.' &&
+			(filename[len-3] == 'p' || filename[len-3] == 'P') &&
+			(filename[len-2] == 'n' || filename[len-2] == 'N') &&
+			(filename[len-1] == 'g' || filename[len-1] == 'G');
+}
+
 void process_drop(const char* filename)
 {
+	if ( is_png(filename) ) {
+		SDL_Texture* texture = IMG_LoadTexture(renderer, filename);
+		if ( texture != NULL ) arrput(textures, texture);
+	}
 }
 
 void draw_textures(void)
 {
+	for ( int i = 0; i < arrlen(textures); i++ ) {
+		SDL_FRect dst = (SDL_FRect){ 0, 0, textures[i]->w, textures[i]->h };
+		SDL_RenderTexture(renderer, textures[i], NULL, &dst);
+	}
+}
+
+void unload_textures(void)
+{
+	for ( int i = 0; i < arrlen(textures); i++ ) {
+		SDL_DestroyTexture(textures[i]);
+	}
+	arrfree(textures);
 }
 
 void init(void)
@@ -65,8 +93,10 @@ int main(void)
 	while ( !quit ) {
 		process_events();
 		begin_draw();
+		draw_textures();
 		end_draw();
 	}
+	unload_textures();
 	unload();
 	return 0;
 }
