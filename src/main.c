@@ -4,41 +4,18 @@
 #include <SDL3_image/SDL_image.h>
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
+#include "structs.h"
+#define UTIL_IMPLEMENTATION
+#include "util.h"
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 bool quit = false;
 Uint64 frametime = 0;
 
-typedef struct {
-	SDL_Texture* texture;
-	IMG_Animation* anim;
-	int frame;
-	Uint64 timer;
-} Gif;
-
 SDL_Texture** textures = NULL;
 Gif* gifs = NULL;
 
-bool is_png(const char* filename)
-{
-	if ( filename == NULL ) return false;
-	size_t len = strlen(filename);
-	return   filename[len-4] == '.' &&
-			(filename[len-3] == 'p' || filename[len-3] == 'P') &&
-			(filename[len-2] == 'n' || filename[len-2] == 'N') &&
-			(filename[len-1] == 'g' || filename[len-1] == 'G');
-}
-
-bool is_gif(const char* filename)
-{
-	if ( filename == NULL ) return false;
-	size_t len = strlen(filename);
-	return   filename[len-4] == '.' &&
-			(filename[len-3] == 'g' || filename[len-3] == 'G') &&
-			(filename[len-2] == 'i' || filename[len-2] == 'I') &&
-			(filename[len-1] == 'f' || filename[len-1] == 'F');
-}
 
 void process_drop(const char* filename)
 {
