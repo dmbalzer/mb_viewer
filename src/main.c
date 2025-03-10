@@ -12,6 +12,15 @@ Uint64 frametime = 0;
 
 SDL_Texture** textures = NULL;
 
+typedef struct {
+	SDL_Texture* texture;
+	IMG_Animation* anim;
+	int frame;
+	Uint64 timer;
+} Gif;
+
+Gif* gifs = NULL;
+
 bool is_png(const char* filename)
 {
 	if ( filename == NULL ) return false;
@@ -22,11 +31,29 @@ bool is_png(const char* filename)
 			(filename[len-1] == 'g' || filename[len-1] == 'G');
 }
 
+bool is_gif(const char* filename)
+{
+	if ( filename == NULL ) return false;
+	size_t len = strlen(filename);
+	return   filename[len-4] == '.' &&
+			(filename[len-3] == 'g' || filename[len-3] == 'G') &&
+			(filename[len-2] == 'i' || filename[len-2] == 'I') &&
+			(filename[len-1] == 'f' || filename[len-1] == 'F');
+}
+
 void process_drop(const char* filename)
 {
 	if ( is_png(filename) ) {
 		SDL_Texture* texture = IMG_LoadTexture(renderer, filename);
 		if ( texture != NULL ) arrput(textures, texture);
+	} else if ( is_gif(filename) ) {
+		Gif gif = { 0 };
+		gif.anim = IMG_LoadAnimation(filename);
+		if ( gif.anim != NULL )	{
+			gif.texture = SDL_CreateTextureFromSurface(renderer, gif.anim->frames[0]);
+			arrput(gifs, gif);
+			arrput(textures, gif.texture);
+		}
 	}
 }
 
@@ -44,6 +71,26 @@ void unload_textures(void)
 		SDL_DestroyTexture(textures[i]);
 	}
 	arrfree(textures);
+}
+
+void unload_gifs(void)
+{
+	for ( int i = 0; i < arrlen(gifs); i++ ) {
+		IMG_FreeAnimation(gifs[i].anim);
+	}
+	arrfree(gifs);
+}
+
+void anim_gifs(void)
+{
+	for ( int i = 0; i < arrlen(gifs); i++ ) {
+		gifs[i].timer += frametime;
+		if ( gifs[i].timer >= gifs[i].anim->delays[gifs[i].frame] ) {
+			gifs[i].timer = 0;
+			gifs[i].frame = (gifs[i].frame + 1) % gifs[i].anim->count;
+			SDL_UpdateTexture(gifs[i].texture, NULL, gifs[i].anim->frames[gifs[i].frame]->pixels, gifs[i].anim->frames[gifs[i].frame]->pitch);
+		}
+	}
 }
 
 void init(void)
@@ -92,10 +139,12 @@ int main(void)
 	init();
 	while ( !quit ) {
 		process_events();
+		anim_gifs();
 		begin_draw();
 		draw_textures();
 		end_draw();
 	}
+	unload_gifs();
 	unload_textures();
 	unload();
 	return 0;
