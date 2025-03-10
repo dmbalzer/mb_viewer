@@ -7,6 +7,7 @@
 #include "structs.h"
 #define UTIL_IMPLEMENTATION
 #include "util.h"
+#include <modbus/modbus.h>
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -15,7 +16,6 @@ Uint64 frametime = 0;
 
 SDL_Texture** textures = NULL;
 Gif* gifs = NULL;
-
 
 void process_drop(const char* filename)
 {
