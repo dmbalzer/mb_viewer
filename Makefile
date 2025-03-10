@@ -1,7 +1,9 @@
 SRC += src/*.c
 FLG += -std=c99
 FLG += -Wall
-LNK += -lraylib
+LNK += -lSDL3
+LNK += -lSDL3_image
+LNK += -lSDL3_ttf
 LNK += -lmodbus
 BIN += mb_viewer
 
